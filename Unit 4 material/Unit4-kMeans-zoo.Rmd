@@ -1,0 +1,59 @@
+---
+title: "zoo-clustering-kMeans"
+author: "Bei Yu & Tianlin Liu"
+date: "March 7, 2016"
+output: word_document
+---
+
+This is a tutorial on using the kMeans algorithm in the RWeka package to cluster animal types in a zoo.
+
+# load in data
+```{r}
+zoo <- read.csv("/Users/byu/Desktop/Data/zoo.csv")
+str(zoo)
+```
+
+# remove columns "names" and "type"
+```{r}
+zoo_unlabel <- zoo[, c(2:17)]
+str(zoo_unlabel)
+```
+
+# build kMeans model using RWeka
+```{r}
+library(RWeka)
+model_rweka <- SimpleKMeans (zoo_unlabel, control = Weka_control(N = 7, I=500, S=100))
+model_rweka
+```
+
+# Since it is difficult to interpret and visualize the clustering results with RWeka, we will introduce some built-in R functions, as well as visualization packages
+
+## use the kMeans algorith in R
+```{r}
+model_r <- kmeans(zoo_unlabel, 7)
+model_r
+```
+
+## print the centroids
+```{r}
+model_r$centers
+```
+
+## get cluster assignment
+```{r}
+cluster_assignment <- data.frame(zoo,model_r$cluster)
+#View(cluster_assignment)
+```
+
+## visualize animal types and clusters by specific features, red = milk yes, black = milk no.
+```{r}
+plot(zoo$type ~ jitter(model_r$cluster, 1), pch=21,col=as.factor(zoo$milk)) 
+```
+
+## use PCA in visualization package "cluster" to visualize kMeans model. PCA is principal components analysis
+```{r}
+#install.packages("cluster")
+library(cluster)
+clusplot(zoo_unlabel,model_r$cluster,color=TRUE,shade=TRUE, labels=2, lines=0) # plot clusters
+```
+
